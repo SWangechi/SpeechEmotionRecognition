@@ -10,7 +10,7 @@ SER(Speech Emotion Recognition) is used in call center for classifying calls acc
 It can also be used in-car board system based on information of the mental state of the driver can be provided to the system to initiate his/her safety preventing accidents to happen
 
 Datasets used in this project:
-Crowd-sourced Emotional Mutimodal Actors Dataset (Crema-D)
+Crowd-sourced Emotional Multimodal Actors Dataset (Crema-D)
 Ryerson Audio-Visual Database of Emotional Speech and Song (Ravdess)
 Surrey Audio-Visual Expressed Emotion (Savee)
 Toronto emotional speech set (Tess)
