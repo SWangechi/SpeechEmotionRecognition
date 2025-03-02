@@ -1,3 +1,16 @@
+# VibeCheckAI – Giving Your Voice a Quick Mood Check 🎵
+
+VibeCheckAI is an **AI-powered Speech Emotion Recognition** application that analyzes **human emotions** from speech.
+
+## 🚀 Features
+- **Real-time Speech Emotion Detection**
+- **FastAPI Backend** for ML model processing
+- **Streamlit UI** for an engaging user experience
+- **XGBoost Model** for accurate predictions
+
+## 🛠 Installation
+1. Clone this repository:
+
 Speech Emotion Recognition, abbreviated as SER, is the act of attempting to recognize human emotion and affective states from speech. 
 This is capitalizing on the fact that voice often reflects underlying emotion through tone and pitch. This is also the phenomenon that animals like dogs and horses employ to be able to understand human emotion.
 
