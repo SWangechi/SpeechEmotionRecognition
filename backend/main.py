@@ -3,48 +3,71 @@ import uvicorn
 import librosa
 import numpy as np
 import pickle
+import os
 from feature_extraction import extract_features
-from pydantic import BaseModel
-import io
 
-# Initialize FastAPI
 app = FastAPI(title="VibeCheckAI - Audio Emotion Recognition")
 
-# Load the model
 MODEL_PATH = "C:/Users/User/Documents/Speech_Emotion_Recognition/backend/xgboost_model.pkl"
+ENCODER_PATH = "C:/Users/User/Documents/Speech_Emotion_Recognition/backend/label_encoder.pkl"
 
+# Load the model
 try:
     with open(MODEL_PATH, "rb") as model_file:
         model = pickle.load(model_file)
     print("✅ Model loaded successfully!")
-    print("🧠 Model type:", type(model))
 except Exception as e:
     print(f"❌ ERROR LOADING MODEL: {str(e)}")
 
-# Define response model
-class PredictionResponse(BaseModel):
-    emotion: str
+# Load the label encoder
+try:
+    with open(ENCODER_PATH, "rb") as encoder_file:
+        label_encoder = pickle.load(encoder_file)
+    print("✅ Label Encoder loaded successfully!")
+except Exception as e:
+    print(f"❌ ERROR LOADING LABEL ENCODER: {str(e)}")
 
-@app.post("/predict/", response_model=PredictionResponse)
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+@app.post("/predict/")
 async def predict_emotion(file: UploadFile = File(...)):
     try:
-        # Read and process audio
-        audio_bytes = await file.read()
-        audio_buffer = io.BytesIO(audio_bytes)  # Convert bytes to file-like object
-        data, sr = librosa.load(audio_buffer, sr=22050)  # Load audio with Librosa
+        if file is None:
+            raise HTTPException(status_code=400, detail="No file uploaded")
+
+        print("📂 Received file:", file.filename)
+
+        # Save the file temporarily
+        temp_filepath = os.path.join(UPLOAD_FOLDER, file.filename)
+        with open(temp_filepath, "wb") as f:
+            f.write(await file.read())
+
+        print(f"📁 File saved at: {temp_filepath}")
+
+        # Load the audio file
+        data, sr = librosa.load(temp_filepath, sr=22050)
+        print("🎵 Audio loaded - Sample rate:", sr, "Length:", len(data))
 
         # Extract features
-        features = extract_features(data, sr)
-        features = np.expand_dims(features, axis=0)  # Ensure correct shape
+        features = np.array(extract_features(data, sr))
+        features = features.reshape(1, -1)  # Ensure 2D shape
 
-        # Predict emotion
-        prediction = model.predict(features)
+        print("📊 Extracted features shape:", features.shape)
 
-        return {"emotion": str(prediction[0])}
+        # Predict emotion (numerical output)
+        prediction = model.predict(features)[0]
+
+        # Convert prediction to emotion label
+        predicted_emotion = label_encoder.inverse_transform([prediction])[0]
+
+        print("🔮 Predicted Emotion:", predicted_emotion)
+
+        return {"emotion": predicted_emotion}
 
     except Exception as e:
+        print(f"❌ ERROR: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error processing the audio file: {str(e)}")
 
-# Run FastAPI
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080, reload=True)

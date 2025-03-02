@@ -51,15 +51,24 @@ uploaded_file = st.file_uploader("Upload an audio file (WAV/MP3)", type=["wav", 
 st.markdown("</div>", unsafe_allow_html=True)
 
 if uploaded_file is not None:
-    with st.spinner("Processing..."):
-        # Read the file contents properly
-        file_bytes = uploaded_file.read()
-        files = {"audio": (uploaded_file.name, file_bytes, uploaded_file.type)}
+    # Save file temporarily
+    file_path = os.path.join("temp", uploaded_file.name)
+    os.makedirs("temp", exist_ok=True)
 
-        response = requests.post("http://127.0.0.1:8080/predict/", files=files)
+    with open(file_path, "wb") as f:
+        f.write(uploaded_file.read())
 
+    st.audio(file_path, format="audio/wav")
+
+    # Send request to FastAPI
+    with st.spinner("Analyzing..."):
+        with open(file_path, "rb") as audio_file:
+            files = {"file": (uploaded_file.name, audio_file, "audio/wav")}
+            response = requests.post("http://127.0.0.1:8080/predict/", files=files)
+
+    # Show result
     if response.status_code == 200:
         result = response.json()
-        st.markdown(f'<div class="result">Predicted Emotion: {result["emotion"]}</div>', unsafe_allow_html=True)
+        st.success(f"Predicted Emotion: {result['emotion']}")
     else:
-        st.error(f"Error processing the audio file: {response.json().get('detail', 'Unknown error')}")
+        st.error(f"Error: {response.json()['detail']}")
