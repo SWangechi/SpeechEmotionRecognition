@@ -4,12 +4,15 @@ import librosa
 import numpy as np
 import pickle
 import os
-from feature_extraction import extract_features
+from backend.feature_extraction import extract_features
 
 app = FastAPI(title="VibeCheckAI - Audio Emotion Recognition")
 
-MODEL_PATH = "C:/Users/User/Documents/Speech_Emotion_Recognition/backend/xgboost_model.pkl"
-ENCODER_PATH = "C:/Users/User/Documents/Speech_Emotion_Recognition/backend/label_encoder.pkl"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Construct paths relative to backend/
+MODEL_PATH = os.path.join(BASE_DIR, "xgboost_model.pkl")
+ENCODER_PATH = os.path.join(BASE_DIR, "label_encoder.pkl")
 
 # Load the model
 try:
