@@ -8,6 +8,10 @@ from backend.feature_extraction import extract_features
 
 app = FastAPI(title="VibeCheckAI - Audio Emotion Recognition")
 
+@app.get("/")
+def home():
+    return {"message": "VibeCheckAI is running!"}
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # Construct paths relative to backend/
