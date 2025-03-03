@@ -64,8 +64,8 @@ if uploaded_file is not None:
     with st.spinner("Analyzing..."):
         with open(file_path, "rb") as audio_file:
             files = {"file": (uploaded_file.name, audio_file, "audio/wav")}
-            API_URL = "https://speechemotionrecognition.onrender.com"
-            response = requests.post(API_URL, files=files)
+            response = requests.post("http://127.0.0.1:8080/predict/", files=files)
+
 
     # Show result
     if response.status_code == 200:
