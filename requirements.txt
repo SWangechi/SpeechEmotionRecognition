@@ -8,3 +8,4 @@ pydantic
 xgboost
 streamlit
 requests
+python-multipart
